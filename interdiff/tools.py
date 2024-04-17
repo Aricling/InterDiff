@@ -6,7 +6,8 @@ import torch.nn.functional as F
 from pytorch3d.ops import cot_laplacian
 from pytorch3d.structures import Meshes
 from human_body_prior.tools import tgm_conversion as tgm
-import chamfer_distance as chd
+# import chamfer_distance as chd
+from pytorch3d.loss import chamfer_distance  as chd
     
 def point2point_signed(
         x,
