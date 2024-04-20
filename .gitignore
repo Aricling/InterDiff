@@ -3,3 +3,4 @@ interdiff/data/behave
 interdiff/data/behave/behave_dataset.tar.gz
 interdiff/data/behave_dataset.tar.gz
 interdiff/body_models.tar.gz
+interdiff/data/test.py

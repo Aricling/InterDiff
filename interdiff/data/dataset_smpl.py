@@ -55,7 +55,7 @@ class Dataset(Dataset):
             gender = info['gender']
             obj_name = info['cat']
             verts, jtr, _, _ = self.smpl[gender](torch.tensor(poses), th_betas=torch.tensor(betas), th_trans=torch.tensor(trans))
-            normal_file = os.path.join(MOTION_PATH, name, 'human_normal.npz')
+            normal_file = os.path.join(MOTION_PATH, name, 'human_normal.npz')   # 这个normal又是做什么的
             if os.path.isfile(normal_file):
                 with np.load(normal_file, allow_pickle=True) as f:
                     d = f['arr_0'].item()
@@ -65,7 +65,7 @@ class Dataset(Dataset):
                 np.savez(normal_file, {"normals":normals})
             normals = torch.from_numpy(normals)
             verts = torch.cat([verts, normals], dim=2)
-            pelvis = np.float32(jtr[:, 0])
+            pelvis = np.float32(jtr[:, 0])  # 这个又是哪一块
             left_foot = np.float32(jtr[:, 10])
             right_foot = np.float32(jtr[:, 11])
             records = {
@@ -96,7 +96,7 @@ class Dataset(Dataset):
                 else:
                     self.idx2frame.append((k, i * fragment, fragment))
         self.num_verts = verts.shape[1]
-        self.num_markers = len(markerset_ssm67_smplh)
+        self.num_markers = len(markerset_ssm67_smplh)   # 这个其实就是一组数
         self.num_obj_points = records['obj_points'].shape[0]
         self.smpl_dim = records['poses'][0].shape[0]
         self.sample_rate = sample_rate
@@ -128,7 +128,7 @@ class Dataset(Dataset):
             pelvis = pelvis - centroid
             pelvis_original = pelvis - smplfit_params['trans'] # pelvis position in original smpl coords system
             smplfit_params['trans'] = np.dot(smplfit_params['trans'] + pelvis_original, rotation.T) - pelvis_original
-            pelvis = np.dot(pelvis, rotation.T)
+            pelvis = np.dot(pelvis, rotation.T) # 这个cononical system是个什么东西？
 
             # human vertex in the canonical system
             human_verts_tran = data['human_verts'][i].copy()[:, :3] - centroid

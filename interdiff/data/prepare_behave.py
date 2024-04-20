@@ -58,9 +58,9 @@ class ContactLabelGenerator(object):
 
 def main(args, name):
     outfile = os.path.join(MOTION_PATH, name, 'contact.npz')
-    if isfile(outfile):
-        print(outfile, 'done, skipped')
-        return
+    # if isfile(outfile):
+    #     print(outfile, 'done, skipped')
+    #     return
     with np.load(os.path.join(MOTION_PATH, name, 'object_fit_all.npz'), allow_pickle=True) as f:
         obj_angles, obj_trans, frame_times = f['angles'], f['trans'], f['frame_times']
     with np.load(os.path.join(MOTION_PATH, name, 'smpl_fit_all.npz'), allow_pickle=True) as f:
@@ -80,18 +80,18 @@ def main(args, name):
     smpl_female = SMPL_Layer(center_idx=0, gender='female', num_betas=10,
                             model_root=str(MODEL_PATH), hands=True)
     smpl = {'male': smpl_male, 'female': smpl_female}[gender]
-    verts, jtr, _, _ = smpl(torch.tensor(poses), th_betas=torch.tensor(betas), th_trans=torch.tensor(trans))
+    verts, jtr, _, _ = smpl(torch.tensor(poses), th_betas=torch.tensor(betas), th_trans=torch.tensor(trans))    # vertices, joints
     verts = np.float32(verts)
-    faces = smpl.th_faces.numpy()
+    faces = smpl.th_faces.numpy()   # 其实就是把smplh中male或者female模型的f给提了出来 shape=[13776,3]
 
-    obj_verts = mesh_obj.v
-    obj_faces = mesh_obj.f
-    center = np.mean(obj_verts, 0)
-    obj_verts = obj_verts - center
-    obj = trimesh.Trimesh(obj_verts, obj_faces, process=False)
+    obj_verts = mesh_obj.v  # 可能是object的顶点 numpy.shape=[11735,3]
+    obj_faces = mesh_obj.f  # object的面 numpy.shape=[23397,3]
+    center = np.mean(obj_verts, 0)  # object的几何中心
+    obj_verts = obj_verts - center  # 平移到中心
+    obj = trimesh.Trimesh(obj_verts, obj_faces, process=False)  # 这个trimesh是什么
     object_points, object_faces = obj.sample(args.num_samples, return_index=True)
     object_normals = obj.face_normals[object_faces]
-    object_all = np.concatenate([object_points, object_normals], axis=1)
+    object_all = np.concatenate([object_points, object_normals], axis=1) # 这里为什么要concat
     
     contact_dict = {
         "object_points": object_all,
@@ -106,7 +106,7 @@ def main(args, name):
         foot_contact_label = 10 if joints[10, 1] > joints[11, 1] else 11
         obj_v = object_points.copy()
         a, t = obj_angles[idx], obj_trans[idx]
-        rot = Rotation.from_rotvec(a).as_matrix()
+        rot = Rotation.from_rotvec(a).as_matrix()   # 三维向量，表示旋转轴，旋转的角度为向量长度
         obj_v = np.matmul(obj_v, rot.T) + t
         # transform canonical mesh to fitting
         contact_object_label, contact_human_label = generator.get_contact_labels(

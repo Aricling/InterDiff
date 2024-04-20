@@ -55,10 +55,10 @@ def ready_arguments(fname_or_dict):
     else:
         dd = fname_or_dict
 
-    backwards_compatibility_replacements(dd)
+    backwards_compatibility_replacements(dd)    # 该有的都有了，所以这一步什么都没做
 
-    want_shapemodel = 'shapedirs' in dd
-    nposeparms = dd['kintree_table'].shape[1] * 3
+    want_shapemodel = 'shapedirs' in dd     # true
+    nposeparms = dd['kintree_table'].shape[1] * 3   # 52x3=156
 
     if 'trans' not in dd:
         dd['trans'] = np.zeros(3)
