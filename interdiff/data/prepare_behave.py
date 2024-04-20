@@ -131,7 +131,7 @@ if __name__ == '__main__':
     parser.add_argument('-redo', default=True, action='store_false')
 
     args = parser.parse_args()
-    print(os.listdir(MOTION_PATH))
+    print(os.listdir(MOTION_PATH))  # sequences
     for data in (os.listdir(MOTION_PATH)):
         main(args, data)
 
