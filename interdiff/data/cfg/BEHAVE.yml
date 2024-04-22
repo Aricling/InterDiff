@@ -1,5 +1,5 @@
 # SMPL
-MOTION_PATH: ./data/behave/sequences # path where motion sequences (30fps) are stored
-OBJECT_TEMPLATE: ./data/behave/objects # path where object templates are stored
-SPLIT_PATH: ./data/behave/split.json # path where processed BEHAVE is stored for training BEHAVE network
+MOTION_PATH: /data1/guoling/InterDiff/interdiff/data/behave/sequences # path where motion sequences (30fps) are stored
+OBJECT_TEMPLATE: /data1/guoling/InterDiff/interdiff/data/behave/objects # path where object templates are stored
+SPLIT_PATH: /data1/guoling/InterDiff/interdiff/data/behave/split.json # path where processed BEHAVE is stored for training BEHAVE network
 MODEL_PATH: /data1/guoling/InterDiff/interdiff/body_models/smplh # path where smplh models are stored
