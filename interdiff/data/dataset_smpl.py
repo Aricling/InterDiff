@@ -31,8 +31,8 @@ class Dataset(Dataset):
             data_name = list(filter(lambda x: x[:6] == "Date03", data_name))
         else:
             raise Exception('mode must be train or test.')
-        self.past_len = past_len
-        self.future_len = future_len
+        self.past_len = past_len    # 10
+        self.future_len = future_len    # 25
         smpl_male = SMPL_Layer(center_idx=0, gender='male', num_betas=10,
                                 model_root=str(MODEL_PATH), hands=True)
         smpl_female = SMPL_Layer(center_idx=0, gender='female', num_betas=10,
@@ -65,7 +65,7 @@ class Dataset(Dataset):
                 np.savez(normal_file, {"normals":normals})
             normals = torch.from_numpy(normals)
             verts = torch.cat([verts, normals], dim=2)
-            pelvis = np.float32(jtr[:, 0])  # 这个又是哪一块
+            pelvis = np.float32(jtr[:, 0])  # 骨盆的位置
             left_foot = np.float32(jtr[:, 10])
             right_foot = np.float32(jtr[:, 11])
             records = {
@@ -87,7 +87,7 @@ class Dataset(Dataset):
                 'ground_joint_label': foot_contact_joint_label,
             }
             self.data.append(records)
-            fragment = (past_len + future_len) * sample_rate
+            fragment = (past_len + future_len) * sample_rate    # result=35
             for i in range(frame_times // fragment):
                 if mode == "test":
                     self.idx2frame.append((k, i * fragment, 1))
@@ -95,7 +95,7 @@ class Dataset(Dataset):
                     self.idx2frame.append((k, i * fragment, frame_times + 1 - (frame_times // fragment) * fragment))
                 else:
                     self.idx2frame.append((k, i * fragment, fragment))
-        self.num_verts = verts.shape[1]
+        self.num_verts = verts.shape[1]     # 顶点数
         self.num_markers = len(markerset_ssm67_smplh)   # 这个其实就是一组数
         self.num_obj_points = records['obj_points'].shape[0]
         self.smpl_dim = records['poses'][0].shape[0]
@@ -105,7 +105,7 @@ class Dataset(Dataset):
     def __getitem__(self, idx):
         index, frame_idx, bias = self.idx2frame[idx]
         data = self.data[index]
-        start_frame = np.random.choice(bias) + frame_idx
+        start_frame = np.random.choice(bias) + frame_idx    #  初始帧是35个区间中随机选的
         end_frame = start_frame + (self.past_len + self.future_len) * self.sample_rate
         centroid = None
         rotation = None
