@@ -116,6 +116,7 @@ def slice_sequence(clip_period_list, output_dir):
             verts, jtr, _, _ = smpl(torch.tensor(poses_clip[i]).unsqueeze(0), th_betas=torch.tensor(betas_clip)[i].unsqueeze(0), th_trans=torch.tensor(new_trans).unsqueeze(0))
             # print("final result:", jtr.shape)
             final_jtr_list.append(np.array(jtr[:,:24]))
+            
 
         print(len(final_jtr_list))
         jtr_array=np.concatenate(final_jtr_list, axis=0)
