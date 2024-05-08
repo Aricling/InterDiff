@@ -28,29 +28,36 @@ smpl_male = None
 smpl_female = None
 
 def calculate_slices2stride_times(t_length, stride=300) -> List:
-    clip_period_list = []
-    clip_start = 0
-    while 1:
-        clip_mid_period = random.randint(stride - 100, stride)
-        clip_end = clip_start + stride - 1
-        if clip_end + 1 > t_length:
-            clip_end = t_length - 1
-            clip_start = clip_end - stride + 1
-            clip_period_list.append([clip_start, clip_end])
-            break
+    if t_length<=stride:
+        clip_period_list=[[0,t_length-1]]
+    else:
+        clip_period_list = []
+        clip_start = 0
+        while 1:
+            clip_mid_period = random.randint(stride - 100, stride)
+            clip_end = clip_start + stride - 1
+            if clip_end + 1 > t_length:
+                clip_end = t_length - 1
+                clip_start = clip_end - stride + 1
+                clip_period_list.append([clip_start, clip_end])
+                break
 
-        clip_period_list.append([clip_start, clip_end])
-        clip_start += clip_mid_period
+            clip_period_list.append([clip_start, clip_end])
+            clip_start += clip_mid_period
     return clip_period_list
 
 
 # frame数只能在object_fit_all.npz中得到
 def process_human_sequence(sequence_path):
-    with np.load(
-        os.path.join(sequence_path, "object_fit_all.npz"), allow_pickle=True
-    ) as f:
-        global obj_angles, obj_trans
-        obj_angles, obj_trans, frame_times = f["angles"], f["trans"], f["frame_times"]
+    try:
+        with np.load(
+            os.path.join(sequence_path, "object_fit_all.npz"), allow_pickle=True
+        ) as f:
+            global obj_angles, obj_trans
+            obj_angles, obj_trans, frame_times = f["angles"], f["trans"], f["frame_times"]
+    except FileNotFoundError:
+        print("file {} does not exist".format(os.path.join(sequence_path, "object_fit_all.npz")))
+        return None, None
     with np.load(
         os.path.join(sequence_path, "smpl_fit_all.npz"), allow_pickle=True
     ) as f:
@@ -68,6 +75,7 @@ def process_human_sequence(sequence_path):
     smpl = {"male": smpl_male, "female": smpl_female}[gender]
 
     global jtr
+    print(sequence_path)
     verts, jtr, _, _ = smpl(
         torch.tensor(poses).cuda(),
         th_betas=torch.tensor(betas).cuda(),
@@ -168,7 +176,8 @@ def slice_sequence(clip_period_list, output_dir):
 
 
 if __name__ == "__main__":
-    sequence_path_dir = "/data1/guoling/InterDiff/interdiff/data/behave/sequences"
+    # sequence_path_dir = "/data1/guoling/InterDiff/interdiff/data/behave/sequences"
+    sequence_path_dir = "/data1/guoling/HOI-Diff/dataset/raw_behave"
     MODEL_PATH = "/data1/guoling/InterDiff/interdiff/body_models/smplh"
 
     smpl_male = SMPL_Layer(
@@ -189,9 +198,11 @@ if __name__ == "__main__":
     smpl_female=smpl_female.cuda()
 
     seq_pth_list=[os.path.join(sequence_path_dir, dir_name) for dir_name in os.listdir(sequence_path_dir)]
-    print(seq_pth_list)
+    # print(seq_pth_list)
     for sequence_path in tqdm(seq_pth_list, total=len(seq_pth_list), desc="seq_path"):
         sequence_length, output_dir = process_human_sequence(sequence_path)
+        if (sequence_length is None) and (output_dir is None):
+            continue
 
         # print(sequence_length)
 
